@@ -136,6 +136,67 @@ function timeAgo(string $datetime): string
     return date('M j, Y', $ts);
 }
 
+/** Default seat capacity per physical screen at The Alex. */
+function screenCapacity(string $screen): int
+{
+    return $screen === 'small' ? 15 : 480;
+}
+
+/**
+ * Split now-showing movies into large- and small-screen buckets from active
+ * showtime screen assignments, falling back to movies.screen when a film has
+ * no active showtimes (avoids screen=both appearing everywhere).
+ *
+ * @param array<int, array<string, mixed>> $movies
+ * @return array{large: array<int, array<string, mixed>>, small: array<int, array<string, mixed>>}
+ */
+function partitionMoviesByScreen(array $movies): array
+{
+    $large = [];
+    $small = [];
+
+    foreach ($movies as $movie) {
+        $onLarge = false;
+        $onSmall = false;
+
+        foreach ($movie['showtimes'] ?? [] as $st) {
+            if (isset($st['is_active']) && (int) $st['is_active'] === 0) {
+                continue;
+            }
+            $s = (string) ($st['screen'] ?? 'both');
+            if ($s === 'large' || $s === 'both') {
+                $onLarge = true;
+            }
+            if ($s === 'small' || $s === 'both') {
+                $onSmall = true;
+            }
+        }
+
+        if (!$onLarge && !$onSmall) {
+            $ms = (string) ($movie['screen'] ?? 'either');
+            if ($ms === 'large' || $ms === 'both') {
+                $onLarge = true;
+            }
+            if ($ms === 'small' || $ms === 'both') {
+                $onSmall = true;
+            }
+            if ($ms === 'either') {
+                $onLarge = true;
+                $onSmall = true;
+            }
+        }
+
+        if ($onLarge) {
+            $large[] = $movie;
+        }
+        if ($onSmall) {
+            $small[] = $movie;
+        }
+    }
+
+    return ['large' => $large, 'small' => $small];
+}
+
 /**
  * One-line item summary for admin list views, e.g. "2 tickets + 3 items" —
  * tickets counted separately from everything else (concessions) so the

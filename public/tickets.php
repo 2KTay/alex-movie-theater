@@ -48,9 +48,9 @@ require TEMPLATES_PATH . '/header.php';
                 <p style="margin-top:1rem;"><strong><?= e(SITE_ADDRESS) ?></strong></p>
             </div>
             <div class="info-card">
-                <h3>Reserve by Phone</h3>
-                <p>Call ahead to reserve seats, especially for the small screen or for groups. We hold reservations until 10 minutes before showtime.</p>
-                <p style="margin-top:1rem;"><strong><a href="tel:<?= e(SITE_PHONE) ?>"><?= e(SITE_PHONE) ?></a></strong></p>
+                <h3>Small Screen — Online Only</h3>
+                <p>Tickets for the small screen must be purchased online before your visit. Select a film below to buy seats in advance.</p>
+                <p style="margin-top:1rem;">For the large screen or group questions, call <strong><a href="tel:<?= e(SITE_PHONE) ?>"><?= e(SITE_PHONE) ?></a></strong>.</p>
             </div>
             <div class="info-card">
                 <h3>Private Rentals</h3>

@@ -8,6 +8,21 @@ $pageDescription = 'See what\'s playing at The Alex in Alexandria, Indiana. Two-
 $currentPage = 'index';
 $nowShowing = tryDb(fn() => MovieRepo::getNowShowing());
 $comingSoon  = tryDb(fn() => MovieRepo::getComingSoon());
+$moviesByScreen = partitionMoviesByScreen($nowShowing);
+$screenSections = [
+    [
+        'key'   => 'large',
+        'id'    => 'large-screen',
+        'label' => 'On the Large Screen',
+        'note'  => '',
+    ],
+    [
+        'key'   => 'small',
+        'id'    => 'small-screen',
+        'label' => 'On the Small Screen',
+        'note'  => 'Small screen seats must be purchased online before your visit.',
+    ],
+];
 require __DIR__ . '/templates/header.php';
 ?>
 
@@ -58,71 +73,103 @@ require __DIR__ . '/templates/header.php';
       <div class="section-divider centered"></div>
     </div>
 
-    <div class="poster-carousel-wrap">
-      <button class="carousel-arrow carousel-prev" aria-label="Previous movies">&#8249;</button>
-      <div class="poster-carousel">
-        <div class="poster-track">
+    <?php if (!empty($nowShowing)): ?>
+      <?php foreach ($screenSections as $section): ?>
+        <?php $sectionMovies = $moviesByScreen[$section['key']] ?? []; ?>
+        <?php if (empty($sectionMovies)) continue; ?>
+        <div class="screen-section" id="<?= e($section['id']) ?>">
+          <div class="screen-section-header">
+            <h3 class="screen-section-title"><?= e($section['label']) ?></h3>
+            <?php if ($section['note'] !== ''): ?>
+              <p class="screen-section-note"><?= e($section['note']) ?></p>
+            <?php endif; ?>
+          </div>
 
-          <?php if (!empty($nowShowing)): ?>
-            <?php foreach ($nowShowing as $i => $movie): ?>
-              <?php
-                $mid        = (int) ($movie['id'] ?? 0);
-                $title      = (string) ($movie['title'] ?? '');
-                $rating     = (string) ($movie['rating'] ?? '');
-                $screen     = (string) ($movie['screen'] ?? 'either');
-                $posterSrc  = posterUrl((string) ($movie['poster_path'] ?? ''));
-                $screenLabel = $screen === 'large' ? 'Large Screen' : ($screen === 'small' ? 'Small Screen' : '');
-              ?>
-              <div class="poster-card" data-track="movie-click" data-track-label="<?= e($title) ?>">
-                <a href="movie.php?id=<?= $mid ?>" class="poster-link">
+          <div class="poster-carousel-wrap">
+            <button class="carousel-arrow carousel-prev" aria-label="Previous movies">&#8249;</button>
+            <div class="poster-carousel">
+              <div class="poster-track">
+                <?php foreach ($sectionMovies as $i => $movie): ?>
+                  <?php
+                    $mid        = (int) ($movie['id'] ?? 0);
+                    $title      = (string) ($movie['title'] ?? '');
+                    $rating     = (string) ($movie['rating'] ?? '');
+                    $posterSrc  = posterUrl((string) ($movie['poster_path'] ?? ''));
+                  ?>
+                  <div class="poster-card" data-track="movie-click" data-track-label="<?= e($title) ?>">
+                    <a href="movie.php?id=<?= $mid ?>" class="poster-link">
+                      <div class="poster-img-wrap">
+                        <?php if ($posterSrc !== ''): ?>
+                          <img src="<?= e($posterSrc) ?>" alt="<?= e($title) ?>" loading="<?= $i === 0 ? 'eager' : 'lazy' ?>">
+                        <?php else: ?>
+                          <div class="movie-poster-placeholder"><?= e($title) ?></div>
+                        <?php endif; ?>
+                        <div class="poster-overlay">
+                          <?php if ($rating !== ''): ?><span class="poster-rating-badge"><?= e($rating) ?></span><?php endif; ?>
+                          <h3 class="poster-title"><?= e($title) ?></h3>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            </div>
+            <button class="carousel-arrow carousel-next" aria-label="Next movies">&#8250;</button>
+          </div>
+        </div>
+      <?php endforeach; ?>
+    <?php else: ?>
+      <div class="screen-section" id="large-screen">
+        <div class="screen-section-header">
+          <h3 class="screen-section-title">On the Large Screen</h3>
+        </div>
+        <div class="poster-carousel-wrap">
+          <button class="carousel-arrow carousel-prev" aria-label="Previous movies">&#8249;</button>
+          <div class="poster-carousel">
+            <div class="poster-track">
+              <div class="poster-card" data-track="movie-click" data-track-label="Star Wars: The Mandalorian &amp; Grogu">
+                <a href="movie.php?id=1" class="poster-link">
                   <div class="poster-img-wrap">
-                    <?php if ($screenLabel !== ''): ?>
-                      <span class="screen-badge"><?= e($screenLabel) ?></span>
-                    <?php endif; ?>
-                    <?php if ($posterSrc !== ''): ?>
-                      <img src="<?= e($posterSrc) ?>" alt="<?= e($title) ?>" loading="<?= $i === 0 ? 'eager' : 'lazy' ?>">
-                    <?php else: ?>
-                      <div class="movie-poster-placeholder"><?= e($title) ?></div>
-                    <?php endif; ?>
+                    <img src="assets/images/starwars.webp" alt="Star Wars: The Mandalorian &amp; Grogu" loading="eager">
                     <div class="poster-overlay">
-                      <?php if ($rating !== ''): ?><span class="poster-rating-badge"><?= e($rating) ?></span><?php endif; ?>
-                      <h3 class="poster-title"><?= e($title) ?></h3>
+                      <span class="poster-rating-badge">PG-13</span>
+                      <h3 class="poster-title">Star Wars: The Mandalorian &amp; Grogu</h3>
                     </div>
                   </div>
                 </a>
               </div>
-            <?php endforeach; ?>
-          <?php else: ?>
-            <div class="poster-card" data-track="movie-click" data-track-label="Star Wars: The Mandalorian &amp; Grogu">
-              <a href="movie.php?id=1" class="poster-link">
-                <div class="poster-img-wrap">
-                  <span class="screen-badge">Large Screen</span>
-                  <img src="assets/images/starwars.webp" alt="Star Wars: The Mandalorian &amp; Grogu" loading="eager">
-                  <div class="poster-overlay">
-                    <span class="poster-rating-badge">PG-13</span>
-                    <h3 class="poster-title">Star Wars: The Mandalorian &amp; Grogu</h3>
-                  </div>
-                </div>
-              </a>
             </div>
-            <div class="poster-card" data-track="movie-click" data-track-label="The Sheep Detectives">
-              <a href="movie.php?id=2" class="poster-link">
-                <div class="poster-img-wrap">
-                  <span class="screen-badge">Small Screen</span>
-                  <img src="assets/images/sheep.webp" alt="The Sheep Detectives" loading="lazy">
-                  <div class="poster-overlay">
-                    <span class="poster-rating-badge">PG</span>
-                    <h3 class="poster-title">The Sheep Detectives</h3>
-                  </div>
-                </div>
-              </a>
-            </div>
-          <?php endif; ?>
-
+          </div>
+          <button class="carousel-arrow carousel-next" aria-label="Next movies">&#8250;</button>
         </div>
       </div>
-      <button class="carousel-arrow carousel-next" aria-label="Next movies">&#8250;</button>
-    </div>
+
+      <div class="screen-section" id="small-screen">
+        <div class="screen-section-header">
+          <h3 class="screen-section-title">On the Small Screen</h3>
+          <p class="screen-section-note">Small screen seats must be purchased online before your visit.</p>
+        </div>
+        <div class="poster-carousel-wrap">
+          <button class="carousel-arrow carousel-prev" aria-label="Previous movies">&#8249;</button>
+          <div class="poster-carousel">
+            <div class="poster-track">
+              <div class="poster-card" data-track="movie-click" data-track-label="The Sheep Detectives">
+                <a href="movie.php?id=2" class="poster-link">
+                  <div class="poster-img-wrap">
+                    <img src="assets/images/sheep.webp" alt="The Sheep Detectives" loading="lazy">
+                    <div class="poster-overlay">
+                      <span class="poster-rating-badge">PG</span>
+                      <h3 class="poster-title">The Sheep Detectives</h3>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+          <button class="carousel-arrow carousel-next" aria-label="Next movies">&#8250;</button>
+        </div>
+      </div>
+    <?php endif; ?>
 
     <div class="policy-box mt-3" style="max-width:700px;">
       <h3>Showtime Policy</h3>

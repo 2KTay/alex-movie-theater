@@ -30,8 +30,8 @@
           <li><a href="index.php">Now Showing</a></li>
           <li><a href="senior-movie.php">Free Senior Movie</a></li>
           <li><a href="concessions.php">Concessions</a></li>
-          <li><a href="events.php">Events</a></li>
-          <li><a href="private-screenings.php">Private Screenings</a></li>
+          <li><a href="private-screenings.php">Rentals</a></li>
+          <li><a href="events.php">Community Events</a></li>
         </ul>
       </div>
       <div class="footer-col">

@@ -91,8 +91,7 @@ $_schema = [
       <li><a href="index.php" class="nav-link<?= ($currentPage ?? '') === 'index' ? ' active' : '' ?>">Now Showing</a></li>
       <li><a href="senior-movie.php" class="nav-link<?= ($currentPage ?? '') === 'senior-movie' ? ' active' : '' ?>">Senior Movie</a></li>
       <li><a href="concessions.php" class="nav-link<?= ($currentPage ?? '') === 'concessions' ? ' active' : '' ?>">Concessions</a></li>
-      <li><a href="events.php" class="nav-link<?= ($currentPage ?? '') === 'events' ? ' active' : '' ?>">Events</a></li>
-      <li><a href="private-screenings.php" class="nav-link<?= ($currentPage ?? '') === 'private-screenings' ? ' active' : '' ?>">Private Screenings</a></li>
+      <li><a href="private-screenings.php" class="nav-link<?= ($currentPage ?? '') === 'private-screenings' ? ' active' : '' ?>">Rentals</a></li>
       <li><a href="location.php" class="nav-link<?= in_array($currentPage ?? '', ['location','contact'], true) ? ' active' : '' ?>">Location &amp; Contact</a></li>
       <li><a href="tickets.php" class="nav-link nav-cta">Buy Tickets</a></li>
       <?php if (!empty($showCart)): ?>

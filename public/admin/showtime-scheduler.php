@@ -116,7 +116,7 @@ $old = [
     'start_time'        => '',
     'date_start'        => '',
     'date_end'          => '',
-    'available_tickets' => 50,
+    'available_tickets' => screenCapacity('large'),
     'screen'            => 'large',
 ];
 $allowedSchedScreens = ['large', 'small'];
@@ -135,8 +135,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($action, ['preview', 'crea
         $old['start_time']        = trim((string)($_POST['start_time'] ?? ''));
         $old['date_start']        = trim((string)($_POST['date_start'] ?? ''));
         $old['date_end']          = trim((string)($_POST['date_end'] ?? ''));
-        $old['available_tickets'] = max(0, (int)($_POST['available_tickets'] ?? 50));
         $old['screen']            = (string)($_POST['screen'] ?? 'large');
+        $old['available_tickets'] = max(0, (int)($_POST['available_tickets'] ?? screenCapacity($old['screen'])));
 
         if ($old['movie_id'] <= 0 || !isset($movieById[$old['movie_id']])) {
             $errors[] = 'Please select a movie.';
@@ -376,6 +376,16 @@ $csrf = $auth->generateCsrfToken();
     movieSel.addEventListener('change', update);
     timeInput.addEventListener('input', update);
     update();
+
+    var screenSel    = document.getElementById('screen');
+    var ticketsInput = document.getElementById('available_tickets');
+    var capacities   = { large: <?= (int) screenCapacity('large') ?>, small: <?= (int) screenCapacity('small') ?> };
+
+    if (screenSel && ticketsInput) {
+        screenSel.addEventListener('change', function () {
+            ticketsInput.value = capacities[screenSel.value] || capacities.large;
+        });
+    }
 })();
 </script>
 

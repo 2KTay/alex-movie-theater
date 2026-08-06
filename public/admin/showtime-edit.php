@@ -12,7 +12,7 @@ $old = [
     'movie_id'          => (int)($_GET['movie_id'] ?? 0),
     'showtime_date'     => preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)($_GET['date'] ?? '')) ? (string)$_GET['date'] : '',
     'showtime_time'     => '',
-    'available_tickets' => 50,
+    'available_tickets' => screenCapacity('large'),
     'is_active'         => 1,
     'sort_order'        => 0,
     'screen'            => 'large',
@@ -60,7 +60,7 @@ if ($isEdit) {
         'movie_id'          => (int)$row['movie_id'],
         'showtime_date'     => (string)($row['showtime_date'] ?? ''),
         'showtime_time'     => isset($row['showtime_time']) ? date('H:i', strtotime((string)$row['showtime_time'])) : '',
-        'available_tickets' => (int)($row['available_tickets'] ?? 50),
+        'available_tickets' => (int)($row['available_tickets'] ?? screenCapacity((string)($row['screen'] ?? 'large'))),
         'is_active'         => (int)($row['is_active'] ?? 1),
         'sort_order'        => (int)$row['sort_order'],
         'screen'            => (string)($row['screen'] ?? 'large'),
@@ -79,10 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $old['movie_id']          = (int)($_POST['movie_id'] ?? 0);
         $old['showtime_date']     = trim((string)($_POST['showtime_date'] ?? ''));
         $old['showtime_time']     = trim((string)($_POST['showtime_time'] ?? ''));
-        $old['available_tickets'] = max(0, (int)($_POST['available_tickets'] ?? 50));
+        $old['screen']            = (string)($_POST['screen'] ?? 'large');
+        $old['available_tickets'] = max(0, (int)($_POST['available_tickets'] ?? screenCapacity($old['screen'])));
         $old['is_active']         = isset($_POST['is_active']) ? 1 : 0;
         $old['sort_order']        = (int)($_POST['sort_order'] ?? 0);
-        $old['screen']            = (string)($_POST['screen'] ?? 'large');
 
         if ($old['movie_id'] <= 0) $errors[] = 'Please select a movie.';
         if ($old['showtime_date'] === '') $errors[] = 'Date is required.';
@@ -257,6 +257,16 @@ $csrf = $auth->generateCsrfToken();
     movieSel.addEventListener('change', update);
     timeInput.addEventListener('input', update);
     update();
+
+    var screenSel   = document.getElementById('screen');
+    var ticketsInput = document.getElementById('available_tickets');
+    var capacities  = { large: <?= (int) screenCapacity('large') ?>, small: <?= (int) screenCapacity('small') ?> };
+
+    if (screenSel && ticketsInput) {
+        screenSel.addEventListener('change', function () {
+            ticketsInput.value = capacities[screenSel.value] || capacities.large;
+        });
+    }
 })();
 </script>
 

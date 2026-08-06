@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function startTimer() {
             clearInterval(timer);
-            timer = setInterval(function () { goTo(current + 1); }, 4500);
+            timer = setInterval(function () { goTo(current + 1); }, 5000);
         }
 
         if (prev) prev.addEventListener('click', function () { goTo(current - 1); startTimer(); });
